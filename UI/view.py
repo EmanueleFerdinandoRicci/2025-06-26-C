@@ -26,7 +26,7 @@ class View(ft.UserControl):
         #ROW 1
         self._ddYear1 = ft.Dropdown(label="Year start", width=150)
         self._ddYear2 = ft.Dropdown(label="Year end", width=150)
-
+        self._controller.fillDDYears()
         self._btnBuildGraph = ft.ElevatedButton(text="Crea grafo", on_click=self._controller.handleBuildGraph)
         self._btnPrintDetails = ft.ElevatedButton(text="Stampa dettagli", on_click=self._controller.handlePrintDetails)
         row1 = ft.Row([self._ddYear1, self._ddYear2, self._btnBuildGraph, self._btnPrintDetails],
