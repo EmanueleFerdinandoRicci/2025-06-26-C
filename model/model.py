@@ -11,6 +11,7 @@ class Model:
         self._results = []
         self._best_sfortunati = []
         self._best_score = -1.0
+        self.dizionario_pesi = {}
 
     def getAllYears(self):
         return DAO.getAllYears()
@@ -36,15 +37,15 @@ class Model:
 
         allEdges = DAO.getAllEdges(y1, y2, self._idMapC)
         pesi = DAO.getPesi(y1, y2, self._idMapC)
-        dizionario_pesi = {}
+        self.dizionario_pesi = {}
         for p in pesi:
-            dizionario_pesi[p.c] = p.numeroGare
+            self.dizionario_pesi[p.c] = p.numeroGare
         for e in allEdges:
             peso_totale = 0
-            if e.constructor1 in dizionario_pesi:
-                peso_totale += dizionario_pesi[e.constructor1]
-            if e.constructor2 in dizionario_pesi:
-                peso_totale += dizionario_pesi[e.constructor2]
+            if e.constructor1 in self.dizionario_pesi:
+                peso_totale += self.dizionario_pesi[e.constructor1]
+            if e.constructor2 in self.dizionario_pesi:
+                peso_totale += self.dizionario_pesi[e.constructor2]
             self._graph.add_edge(e.constructor1, e.constructor2, weight=peso_totale)
 
     def getGraphDetails(self):
@@ -96,15 +97,15 @@ class Model:
             num_campionati = len(nodo.results.keys())
 
             if num_campionati >= m:
-                nP = 0
+                nP = self.dizionario_pesi[nodo]
                 nPtot = 0
 
                 # Scorro tutte le liste dei piazzamenti nei vari anni
                 for anno, risultati in nodo.results.items():
                     nPtot += len(risultati)
-                    for r in risultati:
-                        if r.position is not None:
-                            nP += 1
+                    #for r in risultati:
+                    #    if r.position is not None:
+                    #        nP += 1
 
                 # Calcolo indice I
                 if nPtot > 0:
