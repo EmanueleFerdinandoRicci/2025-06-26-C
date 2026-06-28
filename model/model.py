@@ -66,6 +66,7 @@ class Model:
             if archi_incidenti:
                 # Uso una list comprehension per estrarre solo il 'weight' di ogni arco incidente
                 # e trovo il valore MASSIMO usando max()
+
                 peso_massimo = max([dati['weight'] for u, v, dati in archi_incidenti])
             else:
                 # Caso limite: se il nodo fosse isolato, il suo peso massimo incidente è 0
@@ -87,7 +88,7 @@ class Model:
 
         # 2. Strutture dati per i team validi e l'indice di sfortuna
         squadre_valide = []
-        self.indice_sfortuna = {}  # Lo salviamo qui per stamparlo facilmente nel controller
+        self.indice_sfortuna = {}  # Lo salviamo per stamparlo nel controller
 
         # 3. Filtro i team validi e calcolo l'indice
         for nodo in comp_max:
@@ -114,35 +115,40 @@ class Model:
                 self.indice_sfortuna[nodo] = I
                 squadre_valide.append(nodo)
 
-        # 4. Inizializzo variabili per la ricorsione
-        self._best_sfortunati = []
-        self._best_score = -1.0  # Usiamo -1 per essere sicuri di aggiornarlo al primo giro
+        # 4. FIX: ORDINO LA LISTA DI PARTENZA
+        # Ordino i team validi in base all'indice di sfortuna (decrescente).
+        # Così la ricorsione li processa e li salva già nel giusto ordine di stampa.
+        squadre_valide.sort(key=lambda t: self.indice_sfortuna[t], reverse=True)
 
-        # Avvio la ricorsione
+        # 5. Inizializzo variabili per la ricorsione
+        self._best_sfortunati = []
+        self._best_score = -1.0  # Inizializzato a -1 per aggiornarlo al primo giro
+
+        # 6. Avvio la ricorsione
         self._ricorsione(parziale=[], squadre_valide=squadre_valide, start_index=0, k=k)
 
         return self._best_score, self._best_sfortunati
 
     def _ricorsione(self, parziale, squadre_valide, start_index, k):
-        # CASO TERMINALE: Ho scelto K team
+        # CASO TERMINALE: Ho scelto esattamente K team
         if len(parziale) == k:
             # Calcolo la somma degli indici dei team scelti
             punteggio_attuale = sum(self.indice_sfortuna[t] for t in parziale)
 
             if punteggio_attuale > self._best_score:
                 self._best_score = punteggio_attuale
-                self._best_sfortunati = list(parziale)  # Faccio SEMPRE una copia profonda!
+                self._best_sfortunati = list(parziale)  # Copia profonda fondamentale!
             return
 
-        # OTTIMIZZAZIONE (FONDAMENTALE ALL'ESAME):
-        # Se i team che mancano per finire la lista non bastano ad arrivare a K, mi fermo.
+        # OTTIMIZZAZIONE (PRUNING)
+        # Se i team che mancano per finire la lista non bastano ad arrivare a K, taglio il ramo.
         if len(parziale) + (len(squadre_valide) - start_index) < k:
             return
 
-        # ESPLORAZIONE (Combinazioni: vado avanti da start_index per non avere duplicati)
+        # ESPLORAZIONE
         for i in range(start_index, len(squadre_valide)):
             parziale.append(squadre_valide[i])
-            # Chiamata ricorsiva passando l'indice successivo i + 1
+            # Chiamata ricorsiva passando l'indice successivo i + 1 per evitare duplicati/permutazioni
             self._ricorsione(parziale, squadre_valide, i + 1, k)
             # Backtracking
             parziale.pop()

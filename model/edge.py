@@ -7,4 +7,4 @@ from model.constructor import Constructor
 class Edge:
     constructor1: Constructor
     constructor2: Constructor
-    peso: 0
+    peso: int
