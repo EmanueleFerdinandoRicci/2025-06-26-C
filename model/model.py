@@ -16,6 +16,7 @@ class Model:
     def getAllYears(self):
         return DAO.getAllYears()
 
+
     def getAllConstructors(self):
         self._constructors = DAO.getAllConstructors()
         return self._constructors
